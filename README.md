@@ -5,7 +5,7 @@ Bygger på React Router loaders/actions, Drizzle och SQLite.
 
 ## 🚀 Funktioner
 
-* Route /playground som startsida
+* Route `/playground` som startsida
 
 * Formulär med input-text, mode och Run-knapp
 
@@ -17,7 +17,7 @@ Bygger på React Router loaders/actions, Drizzle och SQLite.
 
 ## Databas
 
-Skapa .env:
+Skapa `.env`:
 
 ```
 DB_FILE_NAME=local.db
