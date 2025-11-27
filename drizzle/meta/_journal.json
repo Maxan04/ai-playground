@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1764062754221,
+      "tag": "0000_puzzling_donald_blake",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1764076706889,
+      "tag": "0001_last_leader",
+      "breakpoints": true
+    }
+  ]
+}
