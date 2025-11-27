@@ -15,6 +15,21 @@ Bygger på React Router loaders/actions, Drizzle och SQLite.
 
 * Visar senaste körningen + historik
 
+## Databas
+
+Skapa .env:
+
+```
+DB_FILE_NAME=local.db
+```
+
+Kör migrationer:
+
+```bash
+npx drizzle-kit generate
+npx drizzle-kit push
+```
+
 ## Starta projektet
 
 1. Installera dependencies:
