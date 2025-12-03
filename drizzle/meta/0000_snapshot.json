@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "dc78e3ea-8530-4dce-a03d-6a5335ad85d8",
+  "id": "1eb4206b-411b-488c-ac04-f2916a913f68",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "experiments": {
@@ -19,8 +19,7 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         },
         "mode": {
           "name": "mode",

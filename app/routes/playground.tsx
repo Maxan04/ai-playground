@@ -1,4 +1,4 @@
-import { useLoaderData, Form, redirect, type ActionFunctionArgs } from "react-router";
+import { useLoaderData, Form, redirect, type ActionFunctionArgs, useActionData } from "react-router";
 import { db } from "../../src/db/db";
 import { experiments } from "../../src/db/schema";
 import { desc } from "drizzle-orm";
@@ -6,13 +6,13 @@ import { mockPlayground } from "~/lib/mockPlayground";
 
 type LoaderData = {
     experiments: Array<{
-    id: number;
-    createdAt: number;
-    mode: string;
-    inputText: string;
-    outputText: string;
-    label?: string;
-  }>;
+        id: number;
+        createdAt: number;
+        mode: string;
+        inputText: string;
+        outputText: string;
+        label?: string;
+    }>;
 };
 
 // Loader
@@ -28,17 +28,23 @@ export async function loader() {
 
 // Action
 export async function action({ request }: ActionFunctionArgs) {
+    const allowedModes = ["summary", "rewrite", "social", "campaign"] as const;
+
     const form = await request.formData();
-    const mode = form.get("mode") as string;
-    const inputText = form.get("inputText") as string;
+    const mode = String(form.get("mode") || "");
+    const inputText = String(form.get("inputText") || "");
+
+    if (!allowedModes.includes(mode as any) || inputText.trim().length === 0) {
+        return Response.json({ error: "Invalid input" }, { status: 400 });
+    }
 
     const outputText = mockPlayground(mode, inputText);
 
     await db.insert(experiments).values({
+        createdAt: Date.now(),
         mode,
         inputText,
         outputText,
-        createdAt: new Date(),
     });
 
     return redirect("/playground")
@@ -49,6 +55,7 @@ export default function PlaygroundRoute() {
     const { experiments } = useLoaderData<LoaderData>();
 
     const latest = experiments[0];
+    const actionData = useActionData() as { error?: string } | undefined;
 
     return (
         <div className="p-6 max-w-4xl mx-auto space-y-8">
@@ -82,6 +89,13 @@ export default function PlaygroundRoute() {
                     Run
                 </button>
             </Form>
+
+            {/* FELMEDDELANDE */}
+            {actionData?.error && (
+                <div className="p-3 rounded bg-red-200 text-red-800 border border-red-400">
+                    {actionData.error}
+                </div>
+            )}
 
             {/* SENASTE KÖRNING */}
             {latest && (

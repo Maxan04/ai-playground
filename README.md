@@ -17,17 +17,11 @@ Bygger på React Router loaders/actions, Drizzle och SQLite.
 
 ## Databas
 
-Skapa `.env`:
-
-```
-DB_FILE_NAME=local.db
-```
-
 Kör migrationer:
 
 ```bash
-npx drizzle-kit generate
-npx drizzle-kit push
+npm run db:generate
+npm run db:push
 ```
 
 ## Starta projektet
