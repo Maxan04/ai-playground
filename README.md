@@ -39,5 +39,5 @@ npm run dev
 
 3. Öppna i webbläsare:
 ```
-http://localhost:5173/playground
+http://localhost:5173/
 ```

@@ -1,9 +1,24 @@
-import { redirect } from "react-router";
+import { Link } from "react-router";
+import { tools } from "../tools/config";
 
-export async function loader() {
-    return redirect("/playground");
-}
+export default function LandingPage() {
+  return (
+    <div className="p-2 md:p-8">
+      <h1 className="text-3xl font-bold mb-4">Welcome</h1>
+      <p>Välj ett verktyg för att komma igång:</p>
 
-export default function IndexRoute() {
-    return null;
+      <div className="flex gap-4 mt-4">
+        {tools.map((tool) => (
+          <Link
+            key={tool.id}
+            to={tool.path}
+            className="border p-4 no-underline w-64 rounded hover:shadow-lg hover:border-blue-500"
+          >
+            <h3 className="text-lg font-semibold">{tool.name}</h3>
+            <p className="text-sm text-gray-300">{tool.description}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
