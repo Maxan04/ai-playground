@@ -15,7 +15,7 @@ export default function LandingPage() {
             className="border p-4 no-underline w-64 rounded hover:shadow-lg hover:border-blue-500"
           >
             <h3 className="text-lg font-semibold">{tool.name}</h3>
-            <p className="text-sm text-gray-300">{tool.description}</p>
+            <p className="text-sm">{tool.description}</p>
           </Link>
         ))}
       </div>

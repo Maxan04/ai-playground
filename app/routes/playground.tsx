@@ -3,6 +3,7 @@ import { db } from "../../src/db/db";
 import { experiments } from "../../src/db/schema";
 import { desc } from "drizzle-orm";
 import { mockPlayground } from "~/lib/mockPlayground";
+import { Button } from "~/components/ui/button";
 
 type LoaderData = {
     experiments: Array<{
@@ -53,13 +54,50 @@ export async function action({ request }: ActionFunctionArgs) {
 // Komponent
 export default function PlaygroundRoute() {
     const { experiments } = useLoaderData<LoaderData>();
-
     const latest = experiments[0];
     const actionData = useActionData() as { error?: string } | undefined;
 
+    if (experiments.length === 0) {
+        return (
+            <div className="p-6 max-w-4xl mx-auto space-y-8">
+                <h1 className="text-3xl font-bold mb-4">Playground</h1>
+
+                <Form method="post" className="space-y-4 border p-4 rounded shadow bg-white">
+                    <div>
+                        <label className="block mb-1 font-semibold text-gray-800">Mode</label>
+                        <select name="mode" className="border p-2 rounded w-full text-gray-900 bg-white">
+                            <option value="summary">summary</option>
+                            <option value="rewrite">rewrite</option>
+                            <option value="social">social</option>
+                            <option value="campaign">campaign</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block mb-1 font-semibold text-gray-800">Input Text</label>
+                        <textarea
+                            name="inputText"
+                            rows={5}
+                            className="border p-2 rounded w-full text-gray-900 bg-white"
+                        />
+                    </div>
+
+                    <Button>Run</Button>
+                </Form>
+
+                {actionData?.error && (
+                <div className="p-3 rounded bg-red-200 text-red-800 border border-red-400">
+                    {actionData.error}
+                </div>
+                )}
+                
+                <p>Inga körningar ännu. Skriv in text och klicka Run för att skapa din första körning.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="p-6 max-w-4xl mx-auto space-y-8">
-            <h1 className="text-3xl font-bold mb-4 text-gray-100">Playground</h1>
+            <h1 className="text-3xl font-bold mb-4">Playground</h1>
 
             {/* FORMULÄR */}
             <Form method="post" className="space-y-4 border p-4 rounded shadow bg-white">
@@ -82,12 +120,7 @@ export default function PlaygroundRoute() {
                     />
                 </div>
 
-                <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Run
-                </button>
+                <Button>Run</Button>
             </Form>
 
             {/* FELMEDDELANDE */}
@@ -120,7 +153,7 @@ export default function PlaygroundRoute() {
 
             {/* LISTA ÖVER TIDIGARE KÖRNINGAR */}
             <div className="space-y-2">
-                <h2 className="text-xl font-semibold mb-2 text-gray-100">Tidigare körningar</h2>
+                <h2 className="text-xl font-semibold mb-2">Tidigare körningar</h2>
                 {experiments.slice(1).map((exp) => (
                     <div
                         key={exp.id}
