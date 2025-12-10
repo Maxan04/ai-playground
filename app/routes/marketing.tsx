@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Slider } from "~/components/ui/slider";
+import { Textarea } from "~/components/ui/textarea";
 
 export default function MarketingToolPage() {
     const [loading, setLoading] = useState(false);
@@ -40,97 +45,120 @@ export default function MarketingToolPage() {
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-8">
+        <div className="p-6 max-w-4xl mx-auto space-y-8 bg-white text-slate-900">
             <h1 className="text-3xl font-bold mb-4">Marketing Content Generator</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded shadow">
-                <div>
-                    <label>Source Content:</label>
-                    <textarea name="sourceContent" className="border p-2 w-full h-32" />
-                </div>
+            <Card className="bg-slate-100">
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="font-semibold">Source Content</label>
+                            <Textarea name="sourceContent" className="h-32" />
+                        </div>
 
-                <div>
-                    <label>Delivery Type</label>
-                    <select name="deliveryType" className="border p-2 w-full text-gray-900 bg-white">
-                        <option value="email">Email</option>
-                        <option value="ad">Ad</option>
-                        <option value="social">Social Media Post</option>
-                    </select>
-                </div>
+                        <div>
+                            <label className="font-semibold">Delivery Type</label>
 
-                <div>
-                    <label>Extra Instructions:</label>
-                    <textarea name="extraInstructions" className="border p-2 w-full h-24" />
-                </div>
+                            <Select name="deliveryType">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Choose delivery type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="email">Email</SelectItem>
+                                    <SelectItem value="ad">Ad</SelectItem>
+                                    <SelectItem value="social">Social Media Post</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                <div className="flex flex-col gap-2">
-                    <p className="font-semibold">Settings</p>
+                        <div>
+                            <label className="font-semibold">Extra Instructions</label>
+                            <Textarea name="extraInstructions" className="h-24" />
+                        </div>
 
-                    <div>
-                        <label>Tone:</label>
-                        <select name="tone" className="border p-2 w-full text-gray-900 bg-white">
-                            <option value="neutral">Neutral</option>
-                            <option value="friendly">Friendly</option>
-                            <option value="formal">Formal</option>
-                        </select>
-                    </div>
+                        <div className="space-y-4">
+                            <p className="font-semibold">Settings</p>
 
-                    <div>
-                        <label>Length:</label>
-                        <select name="length" className="border p-2 w-full text-gray-900 bg-white">
-                            <option value="short">Short</option>
-                            <option value="medium">Medium</option>
-                            <option value="long">Long</option>
-                        </select>                
-                    </div>
+                            <div>
+                                <label>Tone:</label>
+                                <Select name="tone">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose tone" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="neutral">Neutral</SelectItem>
+                                        <SelectItem value="friendly">Friendly</SelectItem>
+                                        <SelectItem value="formal">Formal</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                    <div>
-                        <label>Language:</label>
-                        <select name="language" className="border p-2 w-full text-gray-900 bg-white">
-                            <option value="sv">Swedish</option>
-                            <option value="en">English</option>
-                        </select>            
-                    </div>
+                            <div>
+                                <label>Length:</label>
+                                <Select name="length">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose length" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="short">Short</SelectItem>
+                                        <SelectItem value="medium">Medium</SelectItem>
+                                        <SelectItem value="long">Long</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                    <div>
-                        <label>Creativity:</label>
-                        <input  type="range"
-                                name="creativity"
-                                min="0" 
-                                max="100" 
-                                defaultValue="50"
-                                className="w-full"
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    const display = document.getElementById("creativityValue");
-                                    if (display) {
-                                        display.textContent = value;
-                                    }
-                                }}
-                        />
-                        <span id="creativityValue">50</span>
-                    </div>
-                </div>
+                            <div>
+                                <label>Language:</label>
+                                <Select name="language">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose language" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="sv">Swedish</SelectItem>
+                                        <SelectItem value="en">English</SelectItem>
+                                    </SelectContent>
+                                </Select>            
+                            </div>
 
-                <button type="submit"
-                        disabled={loading}
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    {loading ? "Loading..." : "Generate"}
-                </button>
-            </form>
+                            <div>
+                                <label>Creativity:</label>
+                                <Slider 
+                                    name="creativity" 
+                                    defaultValue={[50]} 
+                                    max={100} 
+                                    min={0} 
+                                    step={1} 
+                                    onValueChange={(value) => {
+                                        const display = document.getElementById("creativity-display");
+                                        if (display) {
+                                            display.textContent = String(value[0]);
+                                        }
+                                    }} 
+                                />
+                                <span id="creativity-display" className="mt-1">50</span>
+                            </div>
+                        </div>
+
+                        <Button type="submit" disabled={loading}>
+                            {loading ? "Loading..." : "Generate"}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
 
             {error && (
-                <div className="text-red-600 font-semibold">
-                    {error}
-                </div>
+                <Card className="border-red-300 bg-red-50 text-red-700">
+                    <CardContent>{error}</CardContent>
+                </Card>
             )}
 
             {result && (
-                <div className="border p-4 rounded shadow bg-gray-100 text-gray-900">
-                    <h2 className="text-2xl font-semibold mb-2">Resultat</h2>
-                    <p>{result}</p>
-                </div>
+                <Card className="bg-slate-100">
+                    <CardContent>
+                        <h2 className="text-2xl font-semibold mb-2">Result</h2>
+                        <p>{result}</p>
+                    </CardContent>
+                </Card>
             )}
         </div>
     );

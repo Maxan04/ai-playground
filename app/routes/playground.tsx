@@ -4,6 +4,9 @@ import { experiments } from "../../src/db/schema";
 import { desc } from "drizzle-orm";
 import { mockPlayground } from "~/lib/mockPlayground";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Textarea } from "~/components/ui/textarea";
 
 type LoaderData = {
     experiments: Array<{
@@ -59,118 +62,139 @@ export default function PlaygroundRoute() {
 
     if (experiments.length === 0) {
         return (
-            <div className="p-6 max-w-4xl mx-auto space-y-8">
-                <h1 className="text-3xl font-bold mb-4">Playground</h1>
+            <div className="p-8 max-w-4xl mx-auto bg-white text-slate-900 space-y-8">
+                <h1 className="text-3xl font-bold">Playground</h1>
 
-                <Form method="post" className="space-y-4 border p-4 rounded shadow bg-white">
-                    <div>
-                        <label className="block mb-1 font-semibold text-gray-800">Mode</label>
-                        <select name="mode" className="border p-2 rounded w-full text-gray-900 bg-white">
-                            <option value="summary">summary</option>
-                            <option value="rewrite">rewrite</option>
-                            <option value="social">social</option>
-                            <option value="campaign">campaign</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block mb-1 font-semibold text-gray-800">Input Text</label>
-                        <textarea
-                            name="inputText"
-                            rows={5}
-                            className="border p-2 rounded w-full text-gray-900 bg-white"
-                        />
-                    </div>
+                {/* FORMULÄR */}
+                <Card className="bg-slate-100">
+                    <CardContent>
+                        <Form method="post" className="space-y-4">
 
-                    <Button>Run</Button>
-                </Form>
+                            <div className="space-y-2">
+                                <label className="font-semibold">Mode</label>
+                                <Select name="mode">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Välj mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="summary">summary</SelectItem>
+                                        <SelectItem value="rewrite">rewrite</SelectItem>
+                                        <SelectItem value="social">social</SelectItem>
+                                        <SelectItem value="campaign">campaign</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
+                            <div className="space-y-2">
+                                <label className="font-semibold">Input Text</label>
+                                <Textarea name="inputText" rows={5} />
+                            </div>
+
+                            <Button>Run</Button>
+                        </Form>
+                    </CardContent>
+                </Card>
+
+                {/* FELMEDDELANDE */}
                 {actionData?.error && (
-                <div className="p-3 rounded bg-red-200 text-red-800 border border-red-400">
-                    {actionData.error}
-                </div>
+                    <Card className="border-red-300 bg-red-50 text-red-700">
+                        <CardContent>
+                            {actionData.error}
+                        </CardContent>
+                    </Card>
                 )}
-                
-                <p>Inga körningar ännu. Skriv in text och klicka Run för att skapa din första körning.</p>
+
+                <Card className="border-dashed border-2 border-slate-300 bg-slate-50">
+                    <CardContent>
+                        Inga körningar ännu. Skriv in text och klicka Run för att skapa din första körning.
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-8">
-            <h1 className="text-3xl font-bold mb-4">Playground</h1>
+        <div className="p-8 max-w-4xl mx-auto bg-white text-slate-900 space-y-8">
+            <h1 className="text-3xl font-bold">Playground</h1>
 
             {/* FORMULÄR */}
-            <Form method="post" className="space-y-4 border p-4 rounded shadow bg-white">
-                <div>
-                    <label className="block mb-1 font-semibold text-gray-800">Mode</label>
-                    <select name="mode" className="border p-2 rounded w-full text-gray-900 bg-white">
-                        <option value="summary">summary</option>
-                        <option value="rewrite">rewrite</option>
-                        <option value="social">social</option>
-                        <option value="campaign">campaign</option>
-                    </select>
-                </div>
+            <Card className="bg-slate-100">
+                <CardContent>
+                    <Form method="post" className="space-y-4">
 
-                <div>
-                    <label className="block mb-1 font-semibold text-gray-800">Input Text</label>
-                    <textarea
-                        name="inputText"
-                        rows={5}
-                        className="border p-2 rounded w-full text-gray-900 bg-white"
-                    />
-                </div>
+                        <div className="space-y-2">
+                            <label className="font-semibold">Mode</label>
+                            <Select name="mode">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Välj mode" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="summary">summary</SelectItem>
+                                    <SelectItem value="rewrite">rewrite</SelectItem>
+                                    <SelectItem value="social">social</SelectItem>
+                                    <SelectItem value="campaign">campaign</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                <Button>Run</Button>
-            </Form>
+                        <div className="space-y-2">
+                            <label className="font-semibold">Input Text</label>
+                            <Textarea name="inputText" rows={5} />
+                        </div>
+
+                        <Button>Run</Button>
+                    </Form>
+                </CardContent>
+            </Card>
 
             {/* FELMEDDELANDE */}
             {actionData?.error && (
-                <div className="p-3 rounded bg-red-200 text-red-800 border border-red-400">
-                    {actionData.error}
-                </div>
+                <Card className="border-red-300 bg-red-50 text-red-700">
+                    <CardContent>
+                        {actionData.error}
+                    </CardContent>
+                </Card>
             )}
 
             {/* SENASTE KÖRNING */}
             {latest && (
-                <div className="border p-4 rounded bg-gray-100 shadow text-gray-900">
-                    <h2 className="text-xl font-semibold mb-2">Senaste körningen</h2>
-                    <p>
-                        <span className="font-semibold">Mode:</span> {latest.mode}
-                    </p>
-                    <p>
-                        <span className="font-semibold">Input:</span>{" "}
-                        {latest.inputText}
-                    </p>
-                    <p>
-                        <span className="font-semibold">Output:</span>{" "}
-                        {latest.outputText}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                        {new Date(latest.createdAt).toLocaleString()}
-                    </p>
-                </div>
+                <Card className="bg-slate-100">
+                    <CardHeader>
+                        <CardTitle>Senaste körningen</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <p><strong>Mode:</strong> {latest.mode}</p>
+                        <p><strong>Input:</strong> {latest.inputText}</p>
+                        <p><strong>Output:</strong> {latest.outputText}</p>
+                        <p className="text-sm text-slate-500">
+                            {new Date(latest.createdAt).toLocaleString()}
+                        </p>
+                    </CardContent>
+                </Card>
             )}
 
             {/* LISTA ÖVER TIDIGARE KÖRNINGAR */}
-            <div className="space-y-2">
-                <h2 className="text-xl font-semibold mb-2">Tidigare körningar</h2>
-                {experiments.slice(1).map((exp) => (
-                    <div
-                        key={exp.id}
-                        className="border p-2 rounded bg-gray-50 flex justify-between items-center text-gray-900"
-                    >
-                        <div className="flex flex-col">
-                            <span className="font-semibold">{exp.mode}</span>
-                            <span className="text-gray-700 text-sm">
-                                {exp.inputText.slice(0, 50)}...
-                            </span>
-                            <span className="text-gray-600 text-xs">
-                                {new Date(exp.createdAt).toLocaleString()}
-                            </span>
-                        </div>
+            {experiments.length > 1 && (
+                <div>
+                    <h2 className="text-xl font-semibold mb-2">Tidigare körningar</h2>
+
+                    <div className="space-y-3">
+                        {experiments.slice(1).map((exp) => (
+                            <Card key={exp.id} className="bg-slate-100">
+                                <CardContent className="p-3 space-y-1">
+                                    <strong>{exp.mode}</strong>
+                                    <p className="text-sm text-slate-700">
+                                        {exp.inputText.slice(0, 50)}...
+                                    </p>
+                                    <p className="text-xs text-slate-500">
+                                        {new Date(exp.createdAt).toLocaleString()}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        ))}
                     </div>
-                ))}
-            </div>
+                </div>
+            )}
         </div>
     );
 }
