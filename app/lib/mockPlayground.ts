@@ -1,4 +1,6 @@
-export function mockPlayground(mode: string, input: string): string {
+import type { Mode } from "./playgroundTypes";
+
+export function mockPlayground(mode: Mode, input: string): string {
   const preview =
     input.trim().slice(0, 160) +
     (input.trim().length > 160 ? "..." : "");

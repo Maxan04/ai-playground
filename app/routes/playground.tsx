@@ -1,18 +1,19 @@
-import { useLoaderData, Form, redirect, type ActionFunctionArgs, useActionData } from "react-router";
+import { useLoaderData, Form, redirect, type ActionFunctionArgs, useActionData, useNavigation } from "react-router";
 import { db } from "../../src/db/db";
 import { experiments } from "../../src/db/schema";
 import { desc } from "drizzle-orm";
-import { mockPlayground } from "~/lib/mockPlayground";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
+import type { Mode } from "~/lib/playgroundTypes";
+import { runPlaygroundAI } from "~/lib/aiPlayground.server";
 
 type LoaderData = {
     experiments: Array<{
         id: number;
         createdAt: number;
-        mode: string;
+        mode: Mode;
         inputText: string;
         outputText: string;
         label?: string;
@@ -32,17 +33,16 @@ export async function loader() {
 
 // Action
 export async function action({ request }: ActionFunctionArgs) {
-    const allowedModes = ["summary", "rewrite", "social", "campaign"] as const;
-
+    const allowedModes: Mode[] = ["summary", "rewrite", "social", "campaign"];
     const form = await request.formData();
-    const mode = String(form.get("mode") || "");
+    const mode = form.get("mode") as Mode;
     const inputText = String(form.get("inputText") || "");
 
-    if (!allowedModes.includes(mode as any) || inputText.trim().length === 0) {
+    if (!allowedModes.includes(mode) || inputText.trim().length === 0) {
         return Response.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    const outputText = mockPlayground(mode, inputText);
+    const outputText = await runPlaygroundAI(mode, inputText);
 
     await db.insert(experiments).values({
         createdAt: Date.now(),
@@ -59,6 +59,9 @@ export default function PlaygroundRoute() {
     const { experiments } = useLoaderData<LoaderData>();
     const latest = experiments[0];
     const actionData = useActionData() as { error?: string } | undefined;
+
+    const navigaton = useNavigation();
+    const isLoading = navigaton.state === "submitting";
 
     if (experiments.length === 0) {
         return (
@@ -90,7 +93,9 @@ export default function PlaygroundRoute() {
                                 <Textarea name="inputText" rows={5} />
                             </div>
 
-                            <Button>Run</Button>
+                            <Button disabled={isLoading}>
+                                {isLoading ? "Loading..." : "Run"}
+                            </Button>
                         </Form>
                     </CardContent>
                 </Card>
@@ -142,7 +147,9 @@ export default function PlaygroundRoute() {
                             <Textarea name="inputText" rows={5} />
                         </div>
 
-                        <Button>Run</Button>
+                        <Button disabled={isLoading}>
+                            {isLoading ? "Loading..." : "Run"}
+                        </Button>
                     </Form>
                 </CardContent>
             </Card>

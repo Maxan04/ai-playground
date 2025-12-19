@@ -1,0 +1,1 @@
+export type Mode = "summary" | "rewrite" | "social" | "campaign";

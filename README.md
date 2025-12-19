@@ -41,3 +41,8 @@ npm run dev
 ```
 http://localhost:5173/
 ```
+
+## OpenAI
+
+Applikationen fungerar utan OpenAI-nyckel.
+Vill du använda riktig AI, skapa en .env-fil baserat på `.env.example` och lägg in din API-nyckel.
