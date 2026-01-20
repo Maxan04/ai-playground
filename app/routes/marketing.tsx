@@ -9,6 +9,7 @@ export default function MarketingToolPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<string | null>(null);
+    const [creativity, setCreativity] = useState<number>(1);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -25,7 +26,7 @@ export default function MarketingToolPage() {
             tone: form.get("tone"),
             length: form.get("length"),
             language: form.get("language"),
-            creativity: form.get("creativity"),
+            creativity,
         };
         
         const res = await fetch("/api/tools/marketing/generate", {
@@ -123,19 +124,15 @@ export default function MarketingToolPage() {
                             <div>
                                 <label>Creativity:</label>
                                 <Slider 
-                                    name="creativity" 
-                                    defaultValue={[50]} 
-                                    max={100} 
-                                    min={0} 
-                                    step={1} 
-                                    onValueChange={(value) => {
-                                        const display = document.getElementById("creativity-display");
-                                        if (display) {
-                                            display.textContent = String(value[0]);
-                                        }
-                                    }} 
+                                    value={[creativity * 50]}
+                                    max={100}
+                                    min={0}
+                                    step={1}
+                                    onValueChange={([value]) => {
+                                        setCreativity(Number((value / 50).toFixed(2)));
+                                    }}
                                 />
-                                <span id="creativity-display" className="mt-1">50</span>
+                                <span className="mt-1">{creativity}</span>
                             </div>
                         </div>
 
@@ -156,7 +153,8 @@ export default function MarketingToolPage() {
                 <Card className="bg-slate-100">
                     <CardContent>
                         <h2 className="text-2xl font-semibold mb-2">Result</h2>
-                        <p>{result}</p>
+                        
+                        <div className="whitespace-pre-wrap">{result}</div>
                     </CardContent>
                 </Card>
             )}
