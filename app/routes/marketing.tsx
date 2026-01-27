@@ -1,15 +1,48 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Slider } from "~/components/ui/slider";
 import { Textarea } from "~/components/ui/textarea";
+import { db } from "../../src/db/db";
+import { toolRuns } from "../../src/db/schema";
+import { desc } from "drizzle-orm";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
+
+type LoaderData = {
+    toolRuns: ToolRun[];
+};
+
+type ToolRun = {
+    id: number;
+    createdAt: number;
+    toolId: string;
+    inputJson: string;
+    outputText: string;
+    promptVersion: string;
+    model: string;
+    temperature: number;
+};
+
+export async function loader({}: LoaderFunctionArgs) {
+    const rows = await db
+        .select()
+        .from(toolRuns)
+        .orderBy(desc(toolRuns.createdAt))
+        .limit(20);
+
+    return { toolRuns: rows };
+}
 
 export default function MarketingToolPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<string | null>(null);
     const [creativity, setCreativity] = useState<number>(1);
+
+    const { toolRuns } = useLoaderData<LoaderData>();
+    const latestRun = toolRuns[0];
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -157,6 +190,54 @@ export default function MarketingToolPage() {
                         <div className="whitespace-pre-wrap">{result}</div>
                     </CardContent>
                 </Card>
+            )}
+
+            {latestRun && (
+                <Card className="bg-slate-100">
+                    <CardHeader>
+                        <CardTitle>Senaste körningen</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                        <p><strong>Prompt version:</strong> {latestRun.promptVersion}</p>
+                        <p><strong>Model:</strong> {latestRun.model}</p>
+                        <p><strong>Temperature:</strong> {latestRun.temperature}</p>
+                        
+                        <p className="text-slate-500">
+                            {new Date(latestRun.createdAt).toLocaleString()}
+                        </p>
+
+                        <pre className="bg-white p-2 rounded border text-xs overflow-auto">
+                            {latestRun.outputText}
+                        </pre>
+                    </CardContent>
+                </Card>
+            )}
+
+            {toolRuns.length > 1 && (
+                <div>
+                    <h2 className="text-xl font-semibold mb-2">Tidigare körningar</h2>
+                    
+                    <div className="space-y-3">
+                        {toolRuns.slice(1).map((run) => (
+                            <Card key={run.id} className="bg-slate-100">
+                                <CardContent className="p-3 space-y-1 text-sm">
+                                    <p>
+                                        <strong>{run.promptVersion}</strong> ·{" "}
+                                        temp {run.temperature}
+                                    </p>
+                                    
+                                    <p className="text-slate-700">
+                                        {run.outputText.slice(0, 120)}...
+                                    </p>
+                                    
+                                    <p className="text-slate-500 text-xs">
+                                        {new Date(run.createdAt).toLocaleString()}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
             )}
         </div>
     );

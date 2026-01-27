@@ -1,4 +1,34 @@
 import { getOpenAIClient } from "~/lib/openaiClient.server";
+import { db } from "../../src/db/db";
+import { toolRuns } from "../../src/db/schema";
+
+const TOOL_ID = "marketing";
+const PROMPT_VERSION = "marketing-v1";
+const MODEL = "gpt-4.1-mini";
+
+async function saveToolRun({
+    input,
+    outputText,
+    temperature,
+}: {
+    input: unknown;
+    outputText: string;
+    temperature: number;
+}) {
+    try {
+        await db.insert(toolRuns).values({
+            createdAt: Date.now(),
+            toolId: TOOL_ID,
+            inputJson: JSON.stringify(input),
+            outputText,
+            promptVersion: PROMPT_VERSION,
+            model: MODEL,
+            temperature: Math.round(temperature * 100) / 100,
+        });
+    } catch (error) {
+        console.error("Failed to save tool run:", error);
+    }
+}
 
 export async function action({ request }: { request: Request }) {
     const body = await request.json().catch(() => null);
@@ -29,8 +59,7 @@ export async function action({ request }: { request: Request }) {
     const openai = getOpenAIClient();
 
     if (!openai) {
-        return Response.json({
-            result: `[MOCK MODE]
+        const mockText = `[MOCK MODE]
             
 This is a simulated ${deliveryType}.
             
@@ -42,25 +71,35 @@ Creativity: ${creativity}
 Source preview:
 ${sourceContent.slice(0, 200)}...
             
-OPENAI_API_KEY is not set, so no real API generation was performed.`,
+OPENAI_API_KEY is not set, so no real API generation was performed.`;
+        
+        await saveToolRun({
+            input: body,
+            outputText: mockText,
+            temperature: creativity,
+        });
+
+        return Response.json({
+            result: mockText,
             meta: {
                 deliveryType,
                 mock: true,
+                promptVersion: PROMPT_VERSION,
             },
         });
     }
 
     try {
         const response = await openai.responses.create({
-            model: "gpt-4.1-mini",
-            temperature: Math.max(Math.min(2, Number(creativity))),
+            model: MODEL,
+            temperature: Math.max(0, Math.min(2, Number(creativity))),
             input: [
                 {
                     role: "system",
                     content: `
                     You are a professional marketing copywriter.
 
-                    Your task is to generate marketing content based strictly on the instructions and source content by the user.
+                    Your task is to generate marketing content based strictly on the instructions and source content provided by the user.
                     
                     Output rules:
                     - Respond ONLY with the generated marketing text.
@@ -75,7 +114,7 @@ OPENAI_API_KEY is not set, so no real API generation was performed.`,
                     Style controls:
                     - Follow the requested tone exactly (e.g. neutral, friendly, formal).
                     - Follow the requested length (short / medium / long).
-                    - Write in the requested language (e.g. Swedish or English,).
+                    - Write in the requested language (e.g. Swedish or English).
 
                     Delivery type definitions:
                     - Email: Write a clear, engaging marketing email suitable for sending to customers or leads.
@@ -106,16 +145,29 @@ OPENAI_API_KEY is not set, so no real API generation was performed.`,
 
         const text = response.output_text ?? "";
 
+        await saveToolRun({
+            input: body,
+            outputText: text,
+            temperature: creativity,
+        });
+
         return Response.json({
             result: text,
             meta: {
                 deliveryType,
-                model: "gpt-4.1-mini",
+                model: MODEL,
                 temperature: creativity,
+                promptVersion: PROMPT_VERSION,
             },
         });
     } catch (error) {
         console.error("OpenAI API error:", error);
+
+        await saveToolRun({
+            input: body,
+            outputText: `Error: ${String(error)}`,
+            temperature: creativity,
+        });
 
         return Response.json( 
             { error: "Failed to generate marketing content" },
