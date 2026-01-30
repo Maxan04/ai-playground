@@ -11,4 +11,10 @@ export const tools = [
     description: "",
     path: "/playground"
   },
+  {
+    id: "email-reply",
+    name: "Email Reply Generator",
+    description: "Generera professionella svar på kundmejl snabbt och enkelt.",
+    path: "/tools/email-reply"
+  }
 ];

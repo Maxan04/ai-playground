@@ -5,4 +5,6 @@ export default [
     route("/playground", "routes/playground.tsx"),
     route("/tools/marketing", "routes/marketing.tsx"),
     route("/api/tools/marketing/generate", "routes/api.tools.marketing.generate.ts"),
+    route("/tools/email-reply", "routes/email-reply.tsx"),
+    route("/api/tools/email-reply/generate", "routes/api.tools.email-reply.generate.ts")
 ] satisfies RouteConfig;
