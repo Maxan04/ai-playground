@@ -1,5 +1,10 @@
 import { getOpenAIClient } from "~/lib/openaiClient.server";
 
+type EmailReplyResult = {
+    subject: string;
+    body: string;
+};
+
 export async function action({ request }: { request: Request }) {
     const body = await request.json().catch(() => null);
 
@@ -21,7 +26,10 @@ export async function action({ request }: { request: Request }) {
     const openai = getOpenAIClient();
 
     if (!openai) {
-        const mockReply = `[MOCK MODE]
+        const mockResult: EmailReplyResult = {
+            subject: "[MOCK] Re: Your Inquiry",
+            body: `
+[MOCK MODE]
         
 Customer email:
 ${customerEmail.slice(0, 200)}...
@@ -32,13 +40,13 @@ Language: ${language}
 Company info:
 ${companyInfo || "None"}
         
-OPENAI_API_KEY is not set, so no real API generation was performed.`;
+OPENAI_API_KEY is not set, so no real API generation was performed.
+            `.trim(),
+        };
 
         return Response.json({
-            result: mockReply,
-            meta: {
-                mock: true
-            }
+            result: mockResult,
+            meta: { mock: true },
         });
     }
 
@@ -62,8 +70,10 @@ OPENAI_API_KEY is not set, so no real API generation was performed.`;
                     - Follow the requested tone exactly.
                     - Write in the requested language.
 
-                    Output:
-                    - Write only the email reply text (no metadata, no explanations).
+                    Output format:
+                    - Return structured JSON with:
+                        - subject: a concise email subject line.
+                        - body: the full email reply text.
                     `.trim(),
                 },
                 {
@@ -80,16 +90,57 @@ ${customerEmail}
                     `.trim(),
                 },
             ],
+            text: {
+                format: {
+                    type: "json_schema",
+                    name: "email_reply",
+                    schema: {
+                        type: "object",
+                        properties: {
+                            subject: { type: "string" },
+                            body: { type: "string" },
+                        },
+                        required: ["subject", "body"],
+                        additionalProperties: false,
+                    },
+                },
+            },
         });
-        
-        const reply = response.output_text ?? "";
+
+        const message = response.output?.find(
+            (item) => item.type === "message"
+        );
+
+        if (!message || message.type !== "message") {
+            throw new Error("No message output returned from OpenAI");
+        }
+
+        const textContent = message.content.find(
+            (c) => c.type === "output_text"
+        );
+
+        const rawText = textContent?.text;
+
+        if (!rawText) {
+            console.error("Full OpenAI response:", JSON.stringify(response, null, 2));
+            throw new Error("No text output returned from OpenAI");
+        }
+
+        let parsed: EmailReplyResult;
+
+        try {
+            parsed = JSON.parse(rawText);
+        } catch (err) {
+            console.error("JSON parse failed:", rawText);
+            throw new Error("Invalid JSON returned from OpenAI");
+        }
+
 
         return Response.json({
-            result: reply,
-            meta: {
-                mock: false
-            }
+            result: parsed,
+            meta: { mock: false },
         });
+
     } catch (error: any) {
         console.error("OpenAI API error:", error);
 

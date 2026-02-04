@@ -35,7 +35,7 @@ export default function EmailReplyToolPage() {
         if (!response.ok) {
             setError(data.error || "An error occurred");
         } else {
-            setResult(data.reply);
+            setResult(`${data.result.subject}\n\n${data.result.body}`);
         }
 
         setLoading(false);
